@@ -22,5 +22,45 @@ const addUser = async (user) => {
     });
 }
 
+const getUser = async (email) => {
+    const user = await new Promise((resolve, reject) => {
+        db.query('SELECT * FROM users WHERE email = ?', email, (err, result) => {
+            if(err) reject(err);
+            resolve(result);
+        });
+    });
+    return user;
+}
 
-export { createUserTable, addUser };
+const getAllUsers = async () => {
+    const users = await new Promise((resolve, reject) => {
+        db.query('SELECT * FROM users', (err, result) => {
+            if(err) reject(err);
+            resolve(result);
+        });
+    });
+    return users;
+}
+
+const deleteUser = async (email) => {
+    db.query('DELETE FROM users WHERE email = ?', email, (err, result) => {
+        if(err) throw err;
+        console.log('User deleted from database');
+    });
+}
+
+const updateUser = async (email, user) => {
+    db.query('UPDATE users SET ? WHERE email = ?', [user, email], (err, result) => {
+        if(err) throw err;
+        console.log('User updated in database');
+    });
+}
+
+const isUserAdmin = async (email) => {
+    const user = await getUser(email);
+    return user[0].isAdmin;
+}   
+
+
+export { createUserTable, addUser, getUser, getAllUsers, deleteUser, updateUser, isUserAdmin};
+
