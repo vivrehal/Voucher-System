@@ -1,5 +1,10 @@
 import { Router } from "express";
+import { userCheckout, loginUser } from "../contollers/userControllers.js";
+import { verifyUser } from "../middlewares/auth.js";
 
-const userRouter = Router();
+const userRouter = Router(); 
 
-export default userRouter;
+userRouter.route('/login').post(loginUser);
+userRouter.route('/checkout').post(verifyUser ,userCheckout);
+
+export default userRouter; 
