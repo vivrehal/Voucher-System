@@ -1,8 +1,29 @@
 import asyncHandler from "../utils/asyncHandler.js";
 import { ApiResponse } from "../utils/apiResponse.js";
-import { calculateDiscount, canUserUseVoucher } from "../models/voucherUsedSchema.js";
-import { getUser } from "../models/userSchema.js";
+import { addVoucherUsed, calculateDiscount, canUserUseVoucher, voucherFrequencyByUser } from "../models/voucherUsedSchema.js";
+import { addUser, getUser } from "../models/userSchema.js";
 import { generateToken } from "../utils/generateToken.js";
+import { getVoucher } from "../models/voucherSchema.js";
+
+const registerUser = asyncHandler(async(req, res) => {
+    const {name, email, password, dob} = req.body;
+    if(!name || !email || !password || !dob){
+        res.status(400).json(new ApiResponse(400, null, 'Please provide all fields'))
+        return
+    }
+    const user = await getUser(email);
+    if(user){
+        res.status(400).json(new ApiResponse(400, null, 'User already exists'))
+        return
+    }
+    const newUser = await addUser({name, email, password, dob});
+    console.log(newUser)
+    if(!newUser){
+        res.status(500).json(new ApiResponse(500, null, 'Internal server error'))
+        return
+    }
+    res.status(201).json(new ApiResponse(201, newUser, 'User created'))
+})
 
 const loginUser = asyncHandler(async(req, res) => {
     const {email, password} = req.body;
@@ -30,7 +51,7 @@ const loginUser = asyncHandler(async(req, res) => {
         .json(new ApiResponse(200, {...user, password: undefined, token}, 'User logged in'))
 })
 
-const userCheckout = asyncHandler(async(req, res) => {
+const applyVoucher = asyncHandler(async(req, res) => {
     const {voucherId, userId, total} = req.body;
     // console.log(voucherId, userId, total)
     if(!userId || !total){
@@ -42,6 +63,12 @@ const userCheckout = asyncHandler(async(req, res) => {
         return
     }
     // console.log("Can't use voucher")
+    const voucher = await getVoucher(voucherId);
+    if(!voucher){
+        res.status(404).json(new ApiResponse(404, {total: total, discount:0}, 'Voucher not found'))
+        return
+    }
+
     const canUseVoucher = await canUserUseVoucher(userId, voucherId, total);
     if(!canUseVoucher.status){
         res.status(400).json(new ApiResponse(400, {total: total, discount:0}, canUseVoucher.message))
@@ -51,4 +78,33 @@ const userCheckout = asyncHandler(async(req, res) => {
     res.status(200).json(new ApiResponse(200, {total: (total-discount), discount: discount}, 'Discount calculated'))
 })
 
-export {userCheckout, loginUser}
+const userCheckout = asyncHandler(async(req, res) => {
+    const {userId, total, voucherId} = req.body;
+    if(!userId || !total){
+        res.status(400).json(new ApiResponse(400, null, 'Please provide total'));
+        return
+    }
+    if(voucherId===undefined || voucherId===null){
+        res.status(201).json(new ApiResponse(201, {total: total}, 'Order Placed Successfully'));
+        return
+    }
+    const voucher = await getVoucher(voucherId);
+    if(!voucher){
+        res.status(404).json(new ApiResponse(404, {total: total, discount:0}, 'Voucher not found'))
+        return
+    }
+    const canUseVoucher = await canUserUseVoucher(userId, voucherId, total);
+    if(!canUseVoucher.status){
+        res.status(400).json(new ApiResponse(400, null, canUseVoucher.message));
+        return
+    }
+    const discount = await calculateDiscount(userId, voucherId, total);
+    const voucherUsed = await addVoucherUsed({userId, voucherId});
+    const newFrequency = await voucherFrequencyByUser(userId, voucherId);
+    // console.log(voucher.useLimit, voucherUsed)
+    res.status(200).json(new ApiResponse(200, {total: (total-discount), remainingLimit: (voucher.useLimit-newFrequency)}, 'Order Placed Successfully'));
+
+    
+})
+
+export {applyVoucher, loginUser, registerUser, userCheckout}
