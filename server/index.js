@@ -15,7 +15,6 @@ const startServer = () => {
 }
 
 startServer();
-
 // addUser({name: 'John Doe', email: 'abc@gmail.com', password: '123456', isAdmin: 0, dob: '1990-01-01', token: '123456'});
 
 
