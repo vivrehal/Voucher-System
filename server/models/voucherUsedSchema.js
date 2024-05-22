@@ -5,7 +5,7 @@ const createVoucherUsedTable = () => {
     db.query(`CREATE TABLE IF NOT EXISTS voucher_used(
         userId INT NOT NULL,
         voucherd INT NOT NULL,
-        frequency INT NOT NULL,
+        frequency INT DEFAULT 1,
         lastUsed DATETIME NOT NULL
     )`, (err, result) => {
         if(err) throw err;
@@ -14,22 +14,22 @@ const createVoucherUsedTable = () => {
 }
 
 const addVoucherUsed = async (voucherUsed) => {
+    const voucherAlreadyUsed = await voucherFrequencyByUser(voucherUsed.userId, voucherUsed.voucherId);
+    console.log(voucherAlreadyUsed);
+    if(voucherAlreadyUsed){
+        db.query('UPDATE voucher_used SET frequency = frequency+1, lastUsed = NOW() WHERE userId = ? AND voucherId = ?', [voucherUsed.userId, voucherUsed.voucherId], (err, result) => {
+        if(err) throw err;
+        console.log('Voucher Used updated in database' + result);
+    });
+    return;
+    }
+    voucherUsed.frequency = 1;
     db.query('INSERT INTO voucher_used SET ?', voucherUsed, (err, result) => {
         if(err) throw err;
         console.log('Voucher Used added to database' + result);
     });
 }
 
-// const vouchersUsedByUser = async (userId, voucherId) => {
-//     console.log(userId, voucherId)
-//     const vouchersUsed = await new Promise((resolve, reject) => {
-//         db.query('SELECT COUNT(userId) FROM voucher_used WHERE userId = ? AND voucherId = ? GROUP BY userId', [userId, voucherId], (err, result) => {
-//             if(err) reject(err);
-//             resolve(result);
-//         });
-//     });
-//     return vouchersUsed;
-// }
 
 const voucherFrequencyByUser = async (userId, voucherId) => {
     const frequency = await new Promise((resolve, reject) => {
@@ -38,7 +38,7 @@ const voucherFrequencyByUser = async (userId, voucherId) => {
             resolve(result);
         });
     });
-    console.log(frequency[0]?.frequency)
+    // console.log(frequency[0]?.frequency)
     return frequency[0]?.frequency || 0;
 }
 
@@ -71,4 +71,4 @@ const calculateDiscount = async (userId, voucherId, total) => {
 }
 
 
-export { createVoucherUsedTable, addVoucherUsed, canUserUseVoucher, calculateDiscount};
+export { createVoucherUsedTable, addVoucherUsed, canUserUseVoucher, calculateDiscount, voucherFrequencyByUser};
