@@ -17,20 +17,36 @@ const createVoucherTable = () => {
 }
 
 const addVoucher = async (voucher) => {
-    db.query('INSERT INTO vouchers SET ?', voucher, (err, result) => {
-        if(err) throw err;
-        console.log('Voucher added to database' + result);
+    const newVoucher = await new Promise((resolve, reject) => {
+        db.query('INSERT INTO vouchers SET ?', voucher, (err, result) => {
+            if(err) reject(err);
+            resolve(result);
+        });
     });
+
+    return newVoucher;
 }
 
-const getVoucher = async (code) => {
+const getVoucher = async (id) => {
+    const voucher = await new Promise((resolve, reject) => {
+        db.query('SELECT * FROM vouchers WHERE id = ?', id, (err, result) => {
+            if(err) reject(err);
+            resolve(result);
+        });
+    });
+
+    return voucher[0];
+}
+
+const getVoucherByCode = async (code) => {
     const voucher = await new Promise((resolve, reject) => {
         db.query('SELECT * FROM vouchers WHERE code = ?', code, (err, result) => {
             if(err) reject(err);
             resolve(result);
         });
     });
-    return voucher;
+    // console.log(voucher[0])
+    return voucher[0];
 }
 
 const getAllVouchers = async () => {
@@ -50,4 +66,4 @@ const deleteVoucher = async (code) => {
     });
 }   
 
-export { createVoucherTable, addVoucher, getVoucher, getAllVouchers, deleteVoucher };
+export { createVoucherTable, addVoucher, getVoucher, getAllVouchers, deleteVoucher, getVoucherByCode };

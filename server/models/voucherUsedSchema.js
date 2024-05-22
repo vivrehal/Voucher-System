@@ -3,7 +3,7 @@ import { getVoucher } from './voucherSchema.js';
 
 const createVoucherUsedTable = () => {
     db.query(`CREATE TABLE IF NOT EXISTS voucher_used(
-        userId INT NOT NULL PRIMARY KEY,
+        userId INT NOT NULL,
         voucherd INT NOT NULL,
         frequency INT NOT NULL,
         lastUsed DATETIME NOT NULL
@@ -20,42 +20,55 @@ const addVoucherUsed = async (voucherUsed) => {
     });
 }
 
-const vouchersUsedByUser = async (userId, voucherId) => {
-    const vouchersUsed = await new Promise((resolve, reject) => {
-        db.query('SELECT COUNT(userId) FROM voucher_used WHERE userId = ? AND voucherd = ? GROUP BY userId', [userId, voucherId], (err, result) => {
-            if(err) reject(err);
-            resolve(result);
-        });
-    });
-    return vouchersUsed;
-}
+// const vouchersUsedByUser = async (userId, voucherId) => {
+//     console.log(userId, voucherId)
+//     const vouchersUsed = await new Promise((resolve, reject) => {
+//         db.query('SELECT COUNT(userId) FROM voucher_used WHERE userId = ? AND voucherId = ? GROUP BY userId', [userId, voucherId], (err, result) => {
+//             if(err) reject(err);
+//             resolve(result);
+//         });
+//     });
+//     return vouchersUsed;
+// }
 
 const voucherFrequencyByUser = async (userId, voucherId) => {
     const frequency = await new Promise((resolve, reject) => {
-        db.query('SELECT frequency FROM voucher_used WHERE userId = ? AND voucherd = ?', [userId, voucherId], (err, result) => {
+        db.query('SELECT frequency FROM voucher_used WHERE userId = ? AND voucherId = ?', [userId, voucherId], (err, result) => {
             if(err) reject(err);
             resolve(result);
         });
     });
-    return frequency[0];
+    console.log(frequency[0]?.frequency)
+    return frequency[0]?.frequency || 0;
 }
 
 const canUserUseVoucher = async (userId, voucherId, total) => {
-    const vouchersUsed = await vouchersUsedByUser(userId, voucherId);
+    // const vouchersUsed = await vouchersUsedByUser(userId, voucherId);
+    // console.log(voucherId, userId, total)
     const frequency = await voucherFrequencyByUser(userId, voucherId);
-    const voucher = await getVoucher(voucherId);
-    if(vouchersUsed.length > 0 || frequency>voucher.useLimit || total < voucher.minSpend) {
-        return false;
+    if(!frequency){
+        return {status: true, message: 'Voucher can be used'};
     }
-    return true;
+    const voucher = await getVoucher(voucherId);
+    if(frequency>voucher.useLimit) {
+        return {status: false, message: 'Voucher limit reached'};
+    }
+    if(total < voucher.minSpend){
+        return {status: false, message: 'Minimum spend ' + voucher.minSpend + ' not reached'};
+    }
+    if(voucher.expiry < new Date()){
+        return {status: false, message: 'Voucher expired'};
+    }
+    return {status: true, message: 'Voucher can be used'};
 }
 
 const calculateDiscount = async (userId, voucherId, total) => {
     const voucher = await getVoucher(voucherId);
+    // console.log(voucher);
     const discount = voucher.isPercent ? (total*voucher.discount/100) : voucher.discount;
+    // console.log(discount)
     return discount>voucher.maxDiscount ? voucher.maxDiscount : discount;
 }
 
 
-
-export { createVoucherUsedTable };
+export { createVoucherUsedTable, addVoucherUsed, canUserUseVoucher, calculateDiscount};

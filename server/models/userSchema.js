@@ -7,8 +7,7 @@ const createUserTable = () => {
         email VARCHAR(200) NOT NULL UNIQUE,
         password VARCHAR(200) NOT NULL,
         isAdmin BOOLEAN DEFAULT 0,
-        dob DATE NOT NULL,
-        token VARCHAR(200) NOT NULL
+        dob DATE NOT NULL
     )`, (err, result) => {
         if(err) throw err;
         console.log('User table created' + result);
@@ -29,8 +28,18 @@ const getUser = async (email) => {
             resolve(result);
         });
     });
-    return user;
+    return user[0];
 }
+
+const getUserById = async (id) => {
+    const user = await new Promise((resolve, reject) => {
+        db.query('SELECT * FROM users WHERE id = ?', id, (err, result) => {
+            if(err) reject(err);
+            resolve(result);
+        });
+    });
+    return user[0];
+}   
 
 const getAllUsers = async () => {
     const users = await new Promise((resolve, reject) => {
@@ -56,11 +65,6 @@ const updateUser = async (email, user) => {
     });
 }
 
-const isUserAdmin = async (email) => {
-    const user = await getUser(email);
-    return user[0].isAdmin;
-}   
 
-
-export { createUserTable, addUser, getUser, getAllUsers, deleteUser, updateUser, isUserAdmin};
+export { createUserTable, addUser, getUser, getAllUsers, deleteUser, updateUser, getUserById};
 
