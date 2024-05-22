@@ -59,11 +59,15 @@ const getAllVouchers = async () => {
     return vouchers;
 }
 
-const deleteVoucher = async (code) => {
-    db.query('DELETE FROM vouchers WHERE code = ?', code, (err, result) => {
-        if(err) throw err;
-        console.log('Voucher deleted from database' + result);
+const deleteVoucherByCode = async (code) => {
+    const voucher = await new Promise((resolve, reject) => {
+        db.query('DELETE FROM vouchers WHERE code = ?', code, (err, result) => {
+            if(err) reject(err);
+            console.log('Voucher deleted from database' + result);
+            resolve(result);
+        });
     });
+    return voucher;
 }   
 
-export { createVoucherTable, addVoucher, getVoucher, getAllVouchers, deleteVoucher, getVoucherByCode };
+export { createVoucherTable, addVoucher, getVoucher, getAllVouchers, deleteVoucherByCode, getVoucherByCode };

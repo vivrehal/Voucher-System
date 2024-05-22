@@ -15,10 +15,13 @@ const createUserTable = () => {
 }
 
 const addUser = async (user) => {
-    db.query('INSERT INTO users SET ?', user, (err, result) => {
-        if(err) throw err;
-        console.log('User added to database');
+    const addedUser=new Promise((resolve, reject)=>{
+        db.query('INSERT INTO users SET ?', user, (err, result) => {
+        if(err) reject(err);
+        resolve(result);
+        });
     });
+    return addedUser;
 }
 
 const getUser = async (email) => {
