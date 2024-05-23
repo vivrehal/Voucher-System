@@ -17,8 +17,8 @@ const createUserTable = () => {
 const addUser = async (user) => {
     const addedUser=new Promise((resolve, reject)=>{
         db.query('INSERT INTO users SET ?', user, (err, result) => {
-        if(err) reject(err);
-        resolve(result);
+            if(err) reject(err);
+            resolve(result);
         });
     });
     return addedUser;
@@ -71,3 +71,45 @@ const updateUser = async (email, user) => {
 
 export { createUserTable, addUser, getUser, getAllUsers, deleteUser, updateUser, getUserById};
 
+// Register Schema
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     User_Register:
+ *       type: object
+ *       required:
+ *         - name
+ *         - email
+ *         - password
+ *         - dob
+ *       properties:
+ *         name:
+ *           type: string
+ *         email:
+ *           type: string
+ *         password:
+ *           type: string
+ *         isAdmin:
+ *           type: boolean
+ *           default: false
+ *         dob:
+ *           type: string
+ */
+/**
+ 
+// Login Schema
+ * @swagger
+ * components:
+ *   schemas:
+ *     User_Login:
+ *       type: object
+ *       required:
+ *         - email
+ *         - password
+ *       properties:
+ *         email:
+ *           type: string
+ *         password:
+ *           type: string
+ */
