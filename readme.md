@@ -14,7 +14,6 @@ A voucher system to manage user registration, login, and voucher operations, inc
 ## Technologies
 
 - **Server**: Express.js (Node.js)
-- **Client**: React (Vite)
 - **Database**: SQLite
 - **Authentication**: JWT
 
@@ -39,13 +38,7 @@ A voucher system to manage user registration, login, and voucher operations, inc
     npm install
     ```
 
-3. **Install client dependencies**:
-    ```bash
-    cd ../client
-    npm install
-    ```
-
-4. **Configure the environment**:
+3. **Configure the environment**:
     Create a `.env` file in the `server` directory:
     ```plaintext
     PORT= 5000
@@ -62,12 +55,6 @@ A voucher system to manage user registration, login, and voucher operations, inc
     ```bash
     cd server
     npm start
-    ```
-
-2. **Start the client**:
-    ```bash
-    cd ../client
-    npm run dev
     ```
 
 The server will run on `http://localhost:5000` and the client on `http://localhost:3000`.
@@ -88,7 +75,6 @@ The server will run on `http://localhost:5000` and the client on `http://localho
 ## Directory Structure
 
 - **Server**: `server` directory (API routes, models, authentication)
-- **Client**: `client` directory (React components, Vite configuration)
 - **Database**: SQLite setup and migrations in `server/db`
 
 ## Contributing
