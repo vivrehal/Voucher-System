@@ -21,6 +21,8 @@ userRouter.route('/checkout').post(verifyUser, userCheckout);
  *       application/json:
  *        schema:
  *          $ref: '#/components/schemas/User_Register'
+ *     tags:
+ *       - Users
  *     responses:
  *       200:
  *         description: User registered successfully.
@@ -36,6 +38,8 @@ userRouter.route('/checkout').post(verifyUser, userCheckout);
  *   post:
  *     summary: User login
  *     description: Use this route to login a user.
+ *     tags:
+ *       - Users
  *     requestBody:
  *      required: true
  *      content:
@@ -59,6 +63,8 @@ userRouter.route('/checkout').post(verifyUser, userCheckout);
  *   post:
  *     summary: Apply voucher
  *     description: Use this route to apply a voucher to the user's cart.
+ *     tags:
+ *       - Users
  *     security:
  *       - bearerAuth: []
  *     responses:
@@ -78,6 +84,8 @@ userRouter.route('/checkout').post(verifyUser, userCheckout);
  *   post:
  *     summary: User checkout
  *     description: Use this route to checkout the user's cart.
+ *     tags:
+ *       - Users
  *     security:
  *       - bearerAuth: []
  *     responses:

@@ -7,19 +7,19 @@ const verifyUser = async (req, res, next) => {
     if(token){
         const user= jwt.verify(token, process.env.JWT_SECRET);
         if(!user){
-            res.status(403).json(new ApiResponse(403, null, 'Unauthorized'));
+            res.status(401).json(new ApiResponse(403, null, 'Unauthorized'));
             return
         }
         const isUser = await getUserById(user.id);   
         if(!isUser){
-            res.status(403).json(new ApiResponse(403, null, 'Unauthorized'));
+            res.status(401).json(new ApiResponse(403, null, 'Unauthorized'));
             return
         }
         // console.log(user)
         req.body.userId = isUser.id;
         next();
     }else{
-        res.status(403).json(new ApiResponse(403, null, 'Unauthorized'));
+        res.status(401).json(new ApiResponse(403, null, 'Unauthorized'));
     }
 }
 

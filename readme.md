@@ -1,6 +1,6 @@
 # Voucher System
 
-A voucher system to manage user registration, login, and voucher operations, including adding, deleting, and applying vouchers with validations. Built with Express.js (Node.js), React (Vite), and SQLite.
+A voucher system to manage user registration, login, and voucher operations, including adding, deleting, and applying vouchers with validations. Built with Express.js (Node.js), and SQLite.
 
 ## Features
 

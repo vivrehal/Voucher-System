@@ -8,10 +8,10 @@ const isUserAdmin = async(req, res, next) => {
             next();
         }
         else{
-            res.status(403).json(new ApiResponse(403, null, 'Unauthorized'));
+            res.status(403).json(new ApiResponse(403, null, 'Forbidden'));
         }
     }else{
-        res.status(403).json(new ApiResponse(403, null, 'Unauthorized'));
+        res.status(403).json(new ApiResponse(403, null, 'Forbidden'));
     }
 }
 
