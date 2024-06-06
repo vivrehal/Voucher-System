@@ -1,4 +1,5 @@
 import {db} from '../db.js';
+import { getUserById } from './userSchema.js';
 import { getVoucher } from './voucherSchema.js';
 
 const createVoucherUsedTable = () => {
@@ -50,6 +51,11 @@ const canUserUseVoucher = async (userId, voucherId, total) => {
         return {status: true, message: 'Voucher can be used'};
     }
     const voucher = await getVoucher(voucherId);
+    const user = await getUserById(userId);
+
+    if(voucher.isNewUser && user.orderPlaced>0){
+        return {status: false, message: 'Voucher for new users only'};
+    }
     if(frequency>voucher.useLimit) {
         return {status: false, message: 'Voucher limit reached'};
     }

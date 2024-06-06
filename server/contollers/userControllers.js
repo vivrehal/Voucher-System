@@ -1,7 +1,7 @@
 import asyncHandler from "../utils/asyncHandler.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 import { addVoucherUsed, calculateDiscount, canUserUseVoucher, voucherFrequencyByUser } from "../models/voucherUsedSchema.js";
-import { addUser, getUser } from "../models/userSchema.js";
+import { addUser, getUser, getUserById, getWalletBalance, useWalletBalance } from "../models/userSchema.js";
 import { generateToken } from "../utils/generateToken.js";
 import { getVoucher } from "../models/voucherSchema.js";
 
@@ -107,4 +107,37 @@ const userCheckout = asyncHandler(async(req, res) => {
     
 })
 
-export {applyVoucher, loginUser, registerUser, userCheckout}
+const useWallet = asyncHandler(async(req, res) => {
+    const {userId, amount} = req.body;
+    if(!userId || !amount){
+        res.status(400).json(new ApiResponse(400, null, 'Please provide userId and amount'))
+        return
+    }
+    const user = await getUserById(userId);
+    if(!user){
+        res.status(404).json(new ApiResponse(404, null, 'User not found'))
+        return
+    }
+    const response = await useWalletBalance(userId, amount);
+    if(!response || response?.flag===false){
+        res.status(500).json(new ApiResponse(500, null, 'Internal server error'))
+        return
+    }
+    res.status(200).json(new ApiResponse(200, response, 'Wallet balance used successfully'))
+})
+
+const userWalletBalance = asyncHandler(async(req, res) => {
+    const {userId} = req.body;
+    if(!userId){
+        res.status(400).json(new ApiResponse(400, null, 'Please provide userId'))
+        return
+    }
+    const balance = await getWalletBalance(userId);
+    if(!balance){
+        res.status(404).json(new ApiResponse(404, null, 'User not found'))
+        return
+    }
+    res.status(200).json(new ApiResponse(200, balance, 'Wallet balance fetched successfully'))
+})
+
+export {applyVoucher, loginUser, registerUser, userCheckout, useWallet, userWalletBalance}

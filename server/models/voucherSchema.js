@@ -9,6 +9,7 @@ const createVoucherTable = () => {
         maxDiscount INT NOT NULL,
         useLimit INT NOT NULL,
         discount INT NOT NULL,
+        isNewUser BOOLEAN DEFAULT 0,
         expiry DATE NOT NULL
     )`, (err, result) => {
         if(err) throw err;
@@ -26,6 +27,7 @@ const addVoucher = async (voucher) => {
 
     return newVoucher;
 }
+
 
 const getVoucher = async (id) => {
     const voucher = await new Promise((resolve, reject) => {

@@ -1,12 +1,14 @@
 import { Router } from "express";
-import { applyVoucher, loginUser, registerUser, userCheckout } from "../contollers/userControllers.js";
+import { applyVoucher, loginUser, registerUser, userCheckout, useWallet, userWalletBalance } from "../contollers/userControllers.js";
 import { verifyUser } from "../middlewares/auth.js";
 
 const userRouter = Router(); 
 
-userRouter.route('/register').post(registerUser)
+userRouter.route('/register').post(registerUser);
 userRouter.route('/login').post(loginUser);
 userRouter.route('/apply-voucher').post(verifyUser ,applyVoucher);
+userRouter.route('/useWallet').post(verifyUser, useWallet);
+userRouter.route('/walletBalance').get(verifyUser, userWalletBalance);
 userRouter.route('/checkout').post(verifyUser, userCheckout);
 
 /**
@@ -91,6 +93,49 @@ userRouter.route('/checkout').post(verifyUser, userCheckout);
  *     responses:
  *       200:
  *         description: Checkout successful.
+ *       400:
+ *         description: Invalid request data.
+ *       401:
+ *         description: Unauthorized access.
+ *       500:
+ *         description: Internal server error.
+ */
+
+
+/**
+ * @swagger
+ * /useWallet:
+ *   post:
+ *     summary: Use wallet balance
+ *     description: Use this route to use wallet balance on the total.
+ *     tags:
+ *       - Users
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Wallet balance used successfully.
+ *       400:
+ *         description: Invalid request data.
+ *       401:
+ *         description: Unauthorized access.
+ *       500:
+ *         description: Internal server error.
+ */
+
+/**
+ * @swagger
+ * /walletBalance:
+ *   get:
+ *     summary: User wallet balance
+ *     description: Use this route to check user's wallet balance.
+ *     tags:
+ *       - Users
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: wallet balance fetched successfully.
  *       400:
  *         description: Invalid request data.
  *       401:
